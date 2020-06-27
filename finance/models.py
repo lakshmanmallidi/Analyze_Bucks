@@ -1,53 +1,52 @@
 from django.db import models
 from django.contrib.auth.models import User
-from datetime import now
-from enum import Enum
+from django.utils.timezone import now
 from uuid import uuid4
 
 # Create your models here.
-class Group(models.Model):
-    group_id = models.AutoField(primary_key=True)
-    group_name = models.CharField(max_length=30,null=False)
-    created_at = models.DateTimeField(default=now, null=False)
+class Partnership(models.Model):
+    partnership_id = models.AutoField(primary_key=True)
+    partnership_name = models.CharField(max_length=30,null=False)
+    created_at = now
 
-class GroupAdmin(models.Model):
-    group_id = models.ForeignKey(Group.group_id,on_delete=models.CASCADE)
-    cust_id = models.ForeignKey(User.pk,on_delete=models.CASCADE)
+class PartnershipAdmin(models.Model):
+    partnership = models.ForeignKey(Partnership,on_delete=models.CASCADE,null=False)
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=False)
 
-class GroupMapping(models.Model):
-    group_id = models.ForeignKey(Group.group_id,on_delete=models.CASCADE)
-    cust_id = models.ForeignKey(User.pk,on_delete=models.CASCADE)
-    added_at = models.DateTimeField(default=now, null=False)
-
-class OwnerType(Enum):
-    U = "User"
-    G = "Group"
+class PartnershipMapping(models.Model):
+    partnership = models.ForeignKey(Partnership,on_delete=models.CASCADE,null=False)
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=False)
+    added_at = now
 
 class Customer(models.Model):
+    class OwnerType(models.TextChoices):
+        User = "User"
+        Partnership = "Partnership"
+    
     cust_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30,null=False)
-    address = models.CharField(max_length=100)
-    user_id = models.ForeignKey(User.pk,on_delete=models.CASCADE)
-    group_id = models.ForeignKey(User.pk,on_delete=models.CASCADE)
-    owner_type = models.Choices(OwnerType,null=False)
-    ref_cust_id = models.ForeignKey(Customer.cust_id,on_delete=models.SET_NULL)
-    created_at = models.DateTimeField(default=now, null=False)
-
-class AccountType(Enum):
-    DA = "Daily"
-    WE = "Weekly"
-    MO = "Monthly"
-    OT = "One_Time"
-    AJ = "Adjustment"
+    address = models.CharField(max_length=100,null=True)
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    partnership = models.ForeignKey(Partnership,on_delete=models.CASCADE,null=True)
+    owner_type = models.CharField(max_length=11,choices=OwnerType.choices, null=False)
+    ref_cust = models.ForeignKey("self",on_delete=models.SET_NULL,null=True)
+    created_at = now
 
 class Account(models.Model):
+    class AccountType(models.TextChoices):
+        Daily = "Daily"
+        Weekly = "Weekly"
+        Monthly = "Monthly"
+        OneTime = "One_Time"
+        Adjustment = "Adjustment"
+
     acct_id = models.AutoField(primary_key=True)
-    cust_id = models.ForeignKey(Customer.cust_id,on_delete=models.CASCADE,null=False)
-    acct_type = models.Choices(AccountType,null=False)
-    principle = models.DecimalField(null=False)
-    time = models.IntegerField()
-    interest_inadvance = models.DecimalField()
-    created_at = models.DateTimeField(default=now, null=False)
+    cust = models.ForeignKey(Customer,on_delete=models.CASCADE,null=False)
+    acct_type = models.CharField(max_length=10,choices=AccountType.choices, null=False)
+    principle = models.DecimalField(max_digits=7,decimal_places=2,null=False)
+    time = models.IntegerField(null=True)
+    interest_inadvance = models.DecimalField(max_digits=5,decimal_places=2,null=True)
+    created_at = now
 
     @property
     def get_installment(self):
@@ -55,12 +54,12 @@ class Account(models.Model):
 
 class Transactions(models.Model):
     transaction_id = models.UUIDField(primary_key=True,default=uuid4,editable=False)
-    transaction_date = models.DateTimeField(default=now(),null=False)
-    acct_id = models.ForeignKey(Account.acct_id,on_delete=models.CASCADE,null=False)
-    amount = models.DecimalField(null=False)
+    transaction_date = models.DateTimeField(null=False)
+    acct = models.ForeignKey(Account,on_delete=models.CASCADE,null=False)
+    amount = models.DecimalField(max_digits=4,decimal_places=2,null=False)
 
 class Denomination(models.Model):
-    transactions_id = models.ForeignKey(Transactions.transaction_id,null=False)
-    value = models.DecimalField(null=False)
+    transactions = models.ForeignKey(Transactions,null=False,on_delete=models.CASCADE)
+    value = models.IntegerField(null=False)
     count = models.IntegerField(default=1,null=False)  
 
