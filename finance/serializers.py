@@ -1,53 +1,59 @@
 from django.contrib.auth.models import User
-from . models import (Partnership, PartnershipAdmin, 
-    PartnershipMapping, Customer, Account, 
-    Transactions,Denomination)
+from . models import (BusinessGroup, BusinessGroupAdmin,
+                      BusinessGroupMapping, Customer, Account,
+                      Transaction, Denomination)
 
 from rest_framework import serializers
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id','username','email']
+        fields = ['id', 'username', 'email']
+        read_only_fields = ['id']
 
-class PartnershipSerializer(serializers.HyperlinkedModelSerializer):
+class BusinessGroupSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Partnership
-        fields = ['partnership_id','partnership_name','created_at']
-        read_only_fields = ['partnership_id','created_at']
+        model = BusinessGroup
+        fields = ['group_id', 'group_name', 'created_at']
+        read_only_fields = ['group_id', 'created_at']
 
-class PartnershipAdminSerializer(serializers.HyperlinkedModelSerializer):
+class BusinessGroupAdminSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PartnershipAdmin
-        fields = ['url','partnership','user']
+        model = BusinessGroupAdmin
+        fields = ['id', 'business_group', 'user']
+        read_only_fields = ['id']
 
-class PartnershipMappingSerializer(serializers.HyperlinkedModelSerializer):
+class BusinessGroupMappingSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PartnershipMapping
-        fields = ['partnership','user','added_at']
-        read_only_fields = ['added_at']
+        model = BusinessGroupMapping
+        fields = ['id', 'business_group', 'user', 'added_at']
+        read_only_fields = ['id', 'added_at']
 
-class CustomerSerializer(serializers.HyperlinkedModelSerializer):
+
+class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
-        fields = ['cust_id','name','address','user', \
-            'partnership','owner_type','ref_cust','created_at']
-        read_only_fields=['created_at','cust_id']
+        fields = ['cust_id', 'name', 'address', 'business_group', 'ref_cust', 'created_at']
+        read_only_fields = ['created_at', 'cust_id']
 
-class AccountSerializer(serializers.HyperlinkedModelSerializer):
+
+class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ['acct_id','cust','acct_type','principle', \
-            'time','interest_inadvance','created_at']
-        read_only_fields=['created_at','acct_id']
+        fields = ['acct_id', 'cust', 'acct_type', 'principle',
+                  'time', 'interest_inadvance', 'created_at']
+        read_only_fields = ['created_at']
 
-class TransactionsSerializer(serializers.HyperlinkedModelSerializer):
+
+class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Transactions
-        fields = ['transaction_id','transaction_date','acct','amount']
-        read_only_fields=['transaction_id']
+        model = Transaction
+        fields = ['transaction_id', 'transaction_date', 'acct', 'amount']
+        read_only_fields = ['transaction_id']
 
-class DenominationSerializer(serializers.HyperlinkedModelSerializer):
+
+class DenominationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Denomination
-        fields = ['transactions','value','count']
+        fields = ['transaction', 'value', 'count']
