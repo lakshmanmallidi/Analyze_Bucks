@@ -41,7 +41,7 @@ class CustomerSerializer(serializers.ModelSerializer):
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ['acct_id', 'cust', 'acct_type', 'principle',
+        fields = ['acct_id','display_name', 'cust', 'acct_type', 'principle',
                   'time', 'interest_inadvance', 'created_at']
         read_only_fields = ['created_at']
 
