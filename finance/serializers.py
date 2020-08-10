@@ -15,7 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
 class BusinessGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = BusinessGroup
-        fields = ['group_id', 'group_name', 'created_at']
+        fields = ['group_id', 'group_name', 'created_at', 'is_active']
         read_only_fields = ['group_id', 'created_at']
 
 class BusinessGroupAdminSerializer(serializers.ModelSerializer):
@@ -34,7 +34,7 @@ class BusinessGroupMappingSerializer(serializers.ModelSerializer):
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
-        fields = ['cust_id', 'name', 'address', 'business_group', 'ref_cust', 'created_at']
+        fields = ['cust_id', 'name', 'address', 'business_group', 'ref_cust', 'created_at', 'is_active']
         read_only_fields = ['created_at', 'cust_id']
 
 
@@ -42,7 +42,7 @@ class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = ['acct_id','display_name', 'cust', 'acct_type', 'principle',
-                  'time', 'interest_inadvance', 'created_at']
+                  'time', 'interest_inadvance', 'created_at', 'is_active']
         read_only_fields = ['created_at']
 
 

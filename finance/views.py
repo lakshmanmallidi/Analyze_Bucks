@@ -27,10 +27,25 @@ class BusinessGroupViewSet(viewsets.ModelViewSet):
     def list(self, request):
         current_user = request.user
         group_list = BusinessGroupMapping.objects \
-            .filter(user=current_user).values_list("business_group",flat=True)
+            .filter(user=current_user).values_list("business_group", flat=True)
         respose = self.serializer_class(BusinessGroup \
             .objects.filter(group_id__in=group_list),many=True).data
         return Response(respose)
+
+    def update(self, request, pk):
+        pk = int(pk)
+        current_user = request.user
+        group_list = BusinessGroupAdmin.objects \
+            .filter(user=current_user).values_list("business_group", flat=True)
+        if pk in group_list:
+            if request.data['operation'] == "CLOSE":
+                BusinessGroup.objects.filter(group_id=pk).update(is_active=False)
+            elif request.data['operation'] == "ACTIVE":
+                BusinessGroup.objects.filter(group_id=pk).update(is_active=True)
+            return Response(self.serializer_class(BusinessGroup.objects.get(group_id=pk)).data)
+        else:
+            return Response({"status":"Authorization Error"}, \
+                status=status.HTTP_401_UNAUTHORIZED)
 
     def create(self, request):
         current_user = request.user
@@ -43,12 +58,24 @@ class BusinessGroupViewSet(viewsets.ModelViewSet):
             if mapping_obj.is_valid() and admin_obj.is_valid():
                 mapping_obj.save()
                 admin_obj.save()
-                return Response({"status":True})
+                return Response(self.serializer_class(saved_bg).data)
             else:
                 return Response(mapping_obj.errors.update(admin_obj.errors), \
                     status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(business_group.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, pk):
+        pk = int(pk)
+        current_user = request.user
+        group_list = BusinessGroupAdmin.objects \
+            .filter(user=current_user).values_list("business_group", flat=True)
+        if pk in group_list:
+            BusinessGroup.objects.filter(group_id=pk).delete()
+            return Response({"status":"success"})
+        else:
+            return Response({"status":"Authorization Error"}, \
+                status=status.HTTP_401_UNAUTHORIZED)
 
 class BusinessGroupAdminViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)

@@ -10,7 +10,7 @@ class BusinessGroup(models.Model):
     group_id = models.AutoField(primary_key=True)
     group_name = models.CharField(max_length=30, null=False)
     created_at = models.DateTimeField(auto_now=True)
-
+    is_active = models.BooleanField(default=True)
 
 class BusinessGroupAdmin(models.Model):
     business_group = models.ForeignKey(
@@ -33,7 +33,7 @@ class Customer(models.Model):
         BusinessGroup, on_delete=models.CASCADE, null=False)
     ref_cust = models.ForeignKey("self", on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now=True)
-
+    is_active = models.BooleanField(default=True)
 
 class Account(models.Model):
     class AccountType(models.TextChoices):
@@ -53,6 +53,7 @@ class Account(models.Model):
     interest_inadvance = models.DecimalField(
         max_digits=5, decimal_places=2, null=True)
     created_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
 
     @property
     def get_installment(self):
@@ -65,7 +66,6 @@ class Transaction(models.Model):
     transaction_date = models.DateTimeField(null=False)
     acct = models.ForeignKey(Account, on_delete=models.CASCADE, null=False)
     amount = models.DecimalField(max_digits=4, decimal_places=2, null=False)
-
 
 class Denomination(models.Model):
     transaction = models.ForeignKey(
