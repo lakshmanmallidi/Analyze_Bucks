@@ -28,12 +28,15 @@ class BusinessGroupMapping(models.Model):
 class Customer(models.Model):
     cust_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, null=False)
+    identifier = models.CharField(max_length=30, null=False)
     address = models.CharField(max_length=100, null=True)
     business_group = models.ForeignKey(
         BusinessGroup, on_delete=models.CASCADE, null=False)
     ref_cust = models.ForeignKey("self", on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
+    class Meta:
+        unique_together = ('name', 'identifier',)
 
 class Account(models.Model):
     class AccountType(models.TextChoices):

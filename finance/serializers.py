@@ -34,7 +34,7 @@ class BusinessGroupMappingSerializer(serializers.ModelSerializer):
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
-        fields = ['cust_id', 'name', 'address', 'business_group', 'ref_cust', 'created_at', 'is_active']
+        fields = ['cust_id', 'name', 'identifier', 'address', 'business_group', 'ref_cust', 'created_at', 'is_active']
         read_only_fields = ['created_at', 'cust_id']
 
 

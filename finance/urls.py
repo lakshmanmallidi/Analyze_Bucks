@@ -1,6 +1,8 @@
 from django.urls import include, path
+from . views import (BusinessGroupView, GetCustomersList, CustomerView)
 from rest_framework import routers
-from . views import (UserViewSet, BusinessGroupViewSet,
+
+from . views_dev import (UserViewSet, BusinessGroupViewSet,
                      BusinessGroupAdminViewSet, BusinessGroupMappingViewSet, 
                      CustomerViewSet, AccountsViewSet,
                      TransactionViewSet, DenominationViewSet)
@@ -14,9 +16,13 @@ router.register(r'customer', CustomerViewSet)
 router.register(r'account', AccountsViewSet)
 router.register(r'transaction', TransactionViewSet)
 router.register(r'denomination', DenominationViewSet)
-
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
-    path('', include(router.urls))
+    path('dev/', include(router.urls)),
+    path('business_group/', BusinessGroupView),
+    path('business_group/<int:group_id>/', BusinessGroupView),
+    path('get_customers_list/<int:group_id>/', GetCustomersList),
+    path('customer/', CustomerView),
+    path('customer/<int:cust_id>/', CustomerView),
 ]

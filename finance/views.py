@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
 from . models import (BusinessGroup, BusinessGroupAdmin,
                       BusinessGroupMapping, Customer, Account,
                       Transaction, Denomination)
@@ -14,100 +15,127 @@ from . serializers import (UserSerializer, BusinessGroupSerializer,
 # Create your views here.
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def BusinessGroupView(request, group_id=None):
+    current_user = request.user
 
-
-class BusinessGroupViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
-    queryset = BusinessGroup.objects.all()
-    serializer_class = BusinessGroupSerializer
-    def list(self, request):
-        current_user = request.user
+    def view():
         group_list = BusinessGroupMapping.objects \
             .filter(user=current_user).values_list("business_group", flat=True)
-        respose = self.serializer_class(BusinessGroup \
-            .objects.filter(group_id__in=group_list),many=True).data
+        respose = BusinessGroupSerializer(BusinessGroup
+                                          .objects.filter(group_id__in=group_list), many=True).data
         return Response(respose)
 
-    def update(self, request, pk):
-        pk = int(pk)
-        current_user = request.user
+    def update():
         group_list = BusinessGroupAdmin.objects \
             .filter(user=current_user).values_list("business_group", flat=True)
-        if pk in group_list:
+        if group_id in group_list:
             if request.data['operation'] == "CLOSE":
-                BusinessGroup.objects.filter(group_id=pk).update(is_active=False)
+                BusinessGroup.objects.filter(
+                    group_id=group_id).update(is_active=False)
             elif request.data['operation'] == "ACTIVE":
-                BusinessGroup.objects.filter(group_id=pk).update(is_active=True)
-            return Response(self.serializer_class(BusinessGroup.objects.get(group_id=pk)).data)
+                BusinessGroup.objects.filter(
+                    group_id=group_id).update(is_active=True)
+            return Response(BusinessGroupSerializer(BusinessGroup
+                                                    .objects.get(group_id=group_id)).data)
         else:
-            return Response({"status":"Authorization Error"}, \
-                status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"status": "Authorization Error"},
+                            status=status.HTTP_401_UNAUTHORIZED)
 
-    def create(self, request):
-        current_user = request.user
-        business_group = self.serializer_class(data=request.data)
+    def create():
+        business_group = BusinessGroupSerializer(data=request.data)
         if business_group.is_valid():
             saved_bg = business_group.save()
-            mapping_data = {"business_group":saved_bg.group_id, "user":current_user.id}
+            mapping_data = {"business_group": saved_bg.group_id,
+                            "user": current_user.id}
             mapping_obj = BusinessGroupMappingSerializer(data=mapping_data)
             admin_obj = BusinessGroupAdminSerializer(data=mapping_data)
             if mapping_obj.is_valid() and admin_obj.is_valid():
                 mapping_obj.save()
                 admin_obj.save()
-                return Response(self.serializer_class(saved_bg).data)
+                return Response(BusinessGroupSerializer(saved_bg).data)
             else:
-                return Response(mapping_obj.errors.update(admin_obj.errors), \
-                    status=status.HTTP_400_BAD_REQUEST)
+                return Response(mapping_obj.errors.update(admin_obj.errors),
+                                status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(business_group.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def destroy(self, request, pk):
-        pk = int(pk)
-        current_user = request.user
+    def delete():
         group_list = BusinessGroupAdmin.objects \
             .filter(user=current_user).values_list("business_group", flat=True)
-        if pk in group_list:
-            BusinessGroup.objects.filter(group_id=pk).delete()
-            return Response({"status":"success"})
+        if group_id in group_list:
+            BusinessGroup.objects.filter(group_id=group_id).delete()
+            return Response({"status": "success"})
         else:
-            return Response({"status":"Authorization Error"}, \
-                status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"status": "Authorization Error"},
+                            status=status.HTTP_401_UNAUTHORIZED)
+                            
+    if request.method == "GET":
+        return view()
+    elif request.method == "POST":
+        return create()
+    elif request.method == "PUT":
+        return update()
+    else:
+        return delete()
 
-class BusinessGroupAdminViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
-    queryset = BusinessGroupAdmin.objects.all()
-    serializer_class = BusinessGroupAdminSerializer
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def GetCustomersList(request, group_id):
+    current_user = request.user
+    group_list = BusinessGroupMapping.objects \
+        .filter(user=current_user).values_list("business_group", flat=True)
+    if group_id in group_list:
+        respose = CustomerSerializer(Customer
+                                     .objects.filter(business_group=group_id), many=True).data
+        return Response(respose)
+    else:
+        return Response({"status": "Authorization Error"},
+                        status=status.HTTP_401_UNAUTHORIZED)
 
+@api_view(['POST', 'PUT'])
+@permission_classes([IsAuthenticated])
+def CustomerView(request, cust_id=None):
+    current_user = request.user
+    group_list = BusinessGroupAdmin.objects \
+        .filter(user=current_user).values_list("business_group", flat=True)
 
-class BusinessGroupMappingViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
-    queryset = BusinessGroupMapping.objects.all()
-    serializer_class = BusinessGroupMappingSerializer
+    def update():
+        try:
+            group_id = int(request.data['business_group'])
+            if group_id in group_list:
+                if request.data['operation'] == "CLOSE":
+                    Customer.objects.filter(business_group=group_id).filter(cust_id=cust_id) \
+                        .update(is_active=False)
+                elif request.data['operation'] == "ACTIVE":
+                    Customer.objects.filter(business_group=group_id).filter(cust_id=cust_id) \
+                        .update(is_active=True)
+                return Response(CustomerSerializer(Customer.objects.get(cust_id=cust_id)).data)
+            else:
+                return Response({"status": "Authorization Error"},
+                                status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print(e)
+            return Response({"status":"Bad Request"}, status=status.HTTP_400_BAD_REQUEST)
 
+    def create():
+        try:
+            group_id = int(request.data['business_group'])
+            if group_id in group_list:
+                customer = CustomerSerializer(data=request.data)
+                if customer.is_valid():
+                    saved_customer = customer.save()
+                    return Response(CustomerSerializer(saved_customer).data)
+                else:
+                    return Response(customer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({"status": "Authorization Error"},
+                                status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            return Response({"status":"Bad Request"}, status=status.HTTP_400_BAD_REQUEST)
 
-class CustomerViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
-    queryset = Customer.objects.all()
-    serializer_class = CustomerSerializer
-
-
-class AccountsViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
-    queryset = Account.objects.all()
-    serializer_class = AccountSerializer
-
-
-class TransactionViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
-    queryset = Transaction.objects.all()
-    serializer_class = TransactionSerializer
-
-
-class DenominationViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
-    queryset = Denomination.objects.all()
-    serializer_class = DenominationSerializer
+    if request.method == "POST":
+        return create()
+    else:
+        return update()
