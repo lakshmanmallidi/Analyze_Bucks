@@ -41,7 +41,7 @@ class CustomerSerializer(serializers.ModelSerializer):
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ['acct_id','display_name', 'cust', 'acct_type', 'principle',
+        fields = ['acct_id', 'display_name', 'customer', 'acct_type', 'principle',
                   'time', 'interest_inadvance', 'created_at', 'is_active']
         read_only_fields = ['created_at']
 
@@ -49,7 +49,7 @@ class AccountSerializer(serializers.ModelSerializer):
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
-        fields = ['transaction_id', 'transaction_date', 'acct', 'amount']
+        fields = ['transaction_id', 'transaction_date', 'account', 'amount']
         read_only_fields = ['transaction_id']
 
 

@@ -1,11 +1,12 @@
 from django.urls import include, path
-from . views import (BusinessGroupView, GetCustomersList, CustomerView)
+from . views import (BusinessGroupView, GetCustomersList, CustomerView,
+                     GetAccountsList, AccountsView, GetTransactionsList, TransactionsView)
 from rest_framework import routers
 
 from . views_dev import (UserViewSet, BusinessGroupViewSet,
-                     BusinessGroupAdminViewSet, BusinessGroupMappingViewSet, 
-                     CustomerViewSet, AccountsViewSet,
-                     TransactionViewSet, DenominationViewSet)
+                         BusinessGroupAdminViewSet, BusinessGroupMappingViewSet,
+                         CustomerViewSet, AccountsViewSet,
+                         TransactionViewSet, DenominationViewSet)
 
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
@@ -25,4 +26,10 @@ urlpatterns = [
     path('get_customers_list/<int:group_id>/', GetCustomersList),
     path('customer/', CustomerView),
     path('customer/<int:cust_id>/', CustomerView),
+    path('get_accounts_list/<int:group_id>/<int:cust_id>/', GetAccountsList),
+    path('account/', AccountsView),
+    path('account/<int:acct_id>/', AccountsView),
+    path('get_transactions_list/<int:group_id>/<int:cust_id>/<int:acct_id>/',
+         GetTransactionsList),
+    path('transaction/', TransactionsView)
 ]
