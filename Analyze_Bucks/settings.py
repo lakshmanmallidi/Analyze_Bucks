@@ -11,26 +11,30 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import json
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+settings = {}
+try:
+    with open(os.path.join(BASE_DIR, "app_settings.json"), 'r') as settings_file:
+        settings = json.load(settings_file)
+except Exception:
+    settings = {"debug": True, "secret_key": "test_dev_key", "allowed_hosts": [
+    ], "db_password": "", "cors_origin_whitelist": ["http://localhost:3000"]}
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get(
-    'DJANGO_SECRET_KEY', 'xxxx$g+xxtax!xxcup@1$uubxx_+&k3q+pmu)5%asj6yjpkag')
+SECRET_KEY = settings["secret_key"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
+DEBUG = settings["debug"]
 
-if os.environ.get('DJANGO_DEBUG', '') != 'False':
-    ALLOWED_HOSTS = []
-else:
-    ALLOWED_HOSTS = ["165.22.214.202"]
-
+ALLOWED_HOSTS = settings["allowed_hosts"]
 
 # Application definition
 
@@ -82,7 +86,7 @@ WSGI_APPLICATION = 'Analyze_Bucks.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-if os.environ.get('DJANGO_DEBUG', '') != 'False':
+if settings["debug"] == True:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -95,7 +99,7 @@ else:
             'ENGINE': 'django.db.backends.mysql',
             'NAME': 'analyze_bucks',
             'USER': 'django',
-            'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD', ''),
+            'PASSWORD': settings["db_password"],
             'HOST': 'localhost',
             'PORT': '',
         }
@@ -150,11 +154,4 @@ REST_FRAMEWORK = {
 
 CORS_ORIGIN_ALLOW_ALL = False
 
-if os.environ.get('DJANGO_DEBUG', '') != 'False':
-    CORS_ORIGIN_WHITELIST = (
-        'http://localhost:3000',
-    )
-else:
-    CORS_ORIGIN_WHITELIST = (
-        '',
-    )
+CORS_ORIGIN_WHITELIST = settings["cors_origin_whitelist"]
