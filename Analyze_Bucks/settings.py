@@ -18,12 +18,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REACT_APP_DIR = os.path.join(BASE_DIR, 'frontend')
 
 settings = {}
-try:
-    with open(os.path.join(REACT_APP_DIR, "src", "app_settings.json"), 'r') as settings_file:
-        settings = json.load(settings_file)
-except Exception:
-    settings = {"debug": True, "secret_key": "test_dev_key", "allowed_hosts": [
-    ], "db_password": "", "cors_origin_whitelist": ["http://localhost:3000"]}
+with open(os.path.join(REACT_APP_DIR, "src", "app_settings.json"), 'r') as settings_file:
+    settings = json.load(settings_file)
 
 
 # Quick-start development settings - unsuitable for production

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Loading from "../../Loading"
 import "../card.css";
+import getServerUrl from "../../../Constants"
+
 function Login({history}) {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
@@ -25,7 +27,7 @@ function Login({history}) {
     };
     setInProgess(true)
     try{
-      const response = await fetch('http://localhost:8000/api-token-auth/', requestOptions);
+      const response = await fetch(getServerUrl+'api-token-auth/', requestOptions);
       if(response.ok) {
         const data = await response.json();
         localStorage.setItem("token",data['token'])

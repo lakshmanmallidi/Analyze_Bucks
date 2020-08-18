@@ -62,7 +62,7 @@ function Groups({ triggerError, setViewType, setGroupId}) {
     };
     try {
       const response = await fetch(
-        "http://localhost:8000/finance/business_group/",
+        getServerUrl() + "finance/business_group/",
         requestOptions
       );
       if (response.ok) {
@@ -96,7 +96,7 @@ function Groups({ triggerError, setViewType, setGroupId}) {
     };
     try {
       const response = await fetch(
-        "http://localhost:8000/finance/business_group/" + group_id + "/",
+        getServerUrl() + "finance/business_group/" + group_id + "/",
         requestOptions
       );
       if (response.ok) {
@@ -133,7 +133,7 @@ function Groups({ triggerError, setViewType, setGroupId}) {
     };
     try {
       const response = await fetch(
-        "http://localhost:8000/finance/business_group/" + group_id + "/",
+        getServerUrl() + "finance/business_group/" + group_id + "/",
         requestOptions
       );
       if (response.ok) {
@@ -169,7 +169,7 @@ function Groups({ triggerError, setViewType, setGroupId}) {
     };
     try {
       const response = await fetch(
-        "http://localhost:8000/finance/business_group/" + groupIdPlaceHolder + "/",
+        getServerUrl() + "finance/business_group/" + groupIdPlaceHolder + "/",
         requestOptions
       );
       if (response.ok) {
