@@ -51,10 +51,10 @@ class Account(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=False)
     acct_type = models.CharField(
         max_length=10, choices=AccountType.choices, null=False)
-    principle = models.DecimalField(max_digits=7, decimal_places=2, null=False)
+    principle = models.DecimalField(max_digits=9, decimal_places=2, null=False)
     time = models.IntegerField(null=True)
     interest_inadvance = models.DecimalField(
-        max_digits=5, decimal_places=2, null=False)
+        max_digits=7, decimal_places=2, null=False)
     created_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
 
@@ -68,7 +68,7 @@ class Transaction(models.Model):
         primary_key=True, default=uuid4, editable=False)
     transaction_date = models.DateTimeField(null=False)
     account = models.ForeignKey(Account, on_delete=models.CASCADE, null=False)
-    amount = models.DecimalField(max_digits=4, decimal_places=2, null=False)
+    amount = models.DecimalField(max_digits=9, decimal_places=2, null=False)
 
 class Denomination(models.Model):
     transaction = models.ForeignKey(
