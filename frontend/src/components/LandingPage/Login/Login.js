@@ -27,7 +27,7 @@ function Login({history}) {
     };
     setInProgess(true)
     try{
-      const response = await fetch(getServerUrl+'api-token-auth/', requestOptions);
+      const response = await fetch(getServerUrl() + 'api-token-auth/', requestOptions);
       if(response.ok) {
         const data = await response.json();
         localStorage.setItem("token",data['token'])
