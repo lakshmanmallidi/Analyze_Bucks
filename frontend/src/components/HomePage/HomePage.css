@@ -1,0 +1,13 @@
+.side-bar-item {
+  background: transparent;
+  margin: 2px;
+  width: 98%;
+}
+
+.side-bar-item:hover {
+  background: #2272aa;
+}
+
+.side-bar-span {
+  color: white;
+}

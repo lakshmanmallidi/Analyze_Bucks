@@ -262,3 +262,4 @@ def TransactionsView(request):
                             status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
         return Response({"status": "Bad Request"}, status=status.HTTP_400_BAD_REQUEST)
+

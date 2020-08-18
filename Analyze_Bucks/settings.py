@@ -15,10 +15,11 @@ import json
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REACT_APP_DIR = os.path.join(BASE_DIR, 'frontend')
 
 settings = {}
 try:
-    with open(os.path.join(BASE_DIR, "app_settings.json"), 'r') as settings_file:
+    with open(os.path.join(REACT_APP_DIR, "src", "app_settings.json"), 'r') as settings_file:
         settings = json.load(settings_file)
 except Exception:
     settings = {"debug": True, "secret_key": "test_dev_key", "allowed_hosts": [
@@ -86,7 +87,7 @@ WSGI_APPLICATION = 'Analyze_Bucks.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-if settings["debug"] == True:
+if settings["debug"]:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -146,12 +147,16 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
+STATICFILES_DIRS = [
+    os.path.join(REACT_APP_DIR, 'build', 'static'),
+]
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
 }
 
-CORS_ORIGIN_ALLOW_ALL = False
-
-CORS_ORIGIN_WHITELIST = settings["cors_origin_whitelist"]
+if settings["debug"]:
+    CORS_ORIGIN_ALLOW_ALL = False
+    CORS_ORIGIN_WHITELIST = settings["cors_origin_whitelist"]
